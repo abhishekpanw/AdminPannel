@@ -5,15 +5,27 @@ import Header from "../Layouts/Header";
 import Sidebar from "../Layouts/Sidebar";
 import Swal from "sweetalert2";
 import * as Yup from "yup";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const User = () => {
   const [data, setdata] = useState([]);
+
+  const [user, setuser] = useState({
+    fullName: "",
+    email: "",
+  });
+
   useEffect(() => {
     axios.get("http://localhost:5000/users/").then((res) => {
       setdata(res.data);
       console.log(res.data);
     });
   }, []);
+
+  {
+    /*================================= Delete User ======================================== */
+  }
 
   const deleteAlert = (id) => {
     Swal.fire({
@@ -36,6 +48,10 @@ const User = () => {
     });
   };
 
+  {
+    /*================================= Add User ======================================== */
+  }
+
   const addUser = useFormik({
     initialValues: {
       fullName: "",
@@ -56,33 +72,68 @@ const User = () => {
         await axios
           .post("http://localhost:5000/users/adduser", values)
           .then((res) => {
-            setdata(res.data);
+            setdata((prev) => {
+              return [...prev, res.data];
+            });
             resetForm({});
+            toast.success("User Added Succes", {
+              theme: "colored",
+            });
           });
       } catch (err) {
-        console.log(err);
+        toast.error("User not Added", {
+          theme: "colored",
+        });
       }
     },
   });
 
+  {
+    /*================================= Edit User ======================================== */
+  }
+
   const editUser = useFormik({
-    initialValues: {
-      fullName: "",
-      email: "",
-      password: "",
-    },
+    initialValues: user,
     validationSchema: Yup.object({
       fullName: Yup.string()
         .max(15, "Must be 15 characters or less")
         .required("Required"),
       email: Yup.string().email("Invalid email address").required("Required"),
-      password: Yup.string().required("Please provide a valid password"),
     }),
 
-    onSubmit: () => {
-      alert("hi");
+    onSubmit: async (values, { setSubmitting, resetForm }) => {
+      try {
+        setSubmitting(false);
+        console.log("User++++++++++++++==", user);
+        await axios
+          .put(`http://localhost:5000/users/${user._id}`, values)
+          .then((res) => {
+            console.log(res.data);
+          });
+        await axios.get(`http://localhost:5000/users/`, values).then((res) => {
+          console.log(res.data);
+          setdata(res.data);
+          resetForm({});
+          toast.success("User Edit Successfully", {
+            theme: "colored",
+          });
+        });
+      } catch (err) {
+        toast.error("User not Edited", {
+          theme: "colored",
+        });
+      }
     },
   });
+
+  const onEdit = (id) => {
+    axios.get(`http://localhost:5000/users/${id}`).then((res) => {
+      console.log(res.data);
+      setuser(res.data);
+      editUser.setFieldValue("fullName", res.data.fullName);
+      editUser.setFieldValue("email", res.data.email);
+    });
+  };
 
   return (
     <>
@@ -110,7 +161,6 @@ const User = () => {
             <table class="table table-bordered table-striped">
               <thead>
                 <tr>
-                  <th>ID</th>
                   <th>Full Name</th>
                   <th>Email</th>
                   <th>Status</th>
@@ -121,7 +171,6 @@ const User = () => {
                 return (
                   <tbody>
                     <tr>
-                      <td>{user._id}</td>
                       <td>{user.fullName}</td>
                       <td>{user.email}</td>
                       <td>
@@ -129,6 +178,7 @@ const User = () => {
                           class="btn btn-success"
                           data-toggle="modal"
                           data-target="#modal-success"
+                          onClick={() => onEdit(user._id)}
                         >
                           Edit
                         </button>
@@ -204,24 +254,6 @@ const User = () => {
                       </div>
                     ) : null}
                     <span className="glyphicon glyphicon-envelope form-control-feedback" />
-                  </div>
-                  <div className="form-group has-feedback">
-                    <input
-                      type="password"
-                      className="form-control"
-                      placeholder="Password"
-                      id="password"
-                      name="password"
-                      onChange={editUser.handleChange}
-                      onBlur={editUser.handleBlur}
-                      value={editUser.values.password}
-                    />
-                    {editUser.touched.password && editUser.errors.password ? (
-                      <div style={{ color: "red" }}>
-                        {editUser.errors.password}
-                      </div>
-                    ) : null}
-                    <span className="glyphicon glyphicon-lock form-control-feedback" />
                   </div>
                   <>
                     <div className="col-xs-4">
@@ -330,6 +362,7 @@ const User = () => {
             </div>
           </div>
         </div>
+        <ToastContainer />
       </div>
     </>
   );

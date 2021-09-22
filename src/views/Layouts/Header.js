@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link, Redirect } from "react-router-dom";
 
-function Header() {
+function Header(props) {
   const [redirect, setRedirect] = useState(false);
   const logout = () => {
     setRedirect(true);
@@ -47,7 +47,7 @@ function Header() {
                     className="user-image"
                     alt="User Image"
                   />
-                  <span className="hidden-xs">Abhishek</span>
+                  <span className="hidden-xs">{props.value}</span>
                 </a>
                 <ul className="dropdown-menu">
                   {/* User image */}
@@ -57,7 +57,7 @@ function Header() {
                       className="img-circle"
                       alt="User Image"
                     />
-                    <p>Abhishek</p>
+                    <p>{props.value}</p>
                   </li>
 
                   <li

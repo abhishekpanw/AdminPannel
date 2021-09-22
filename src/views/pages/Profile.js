@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import Header from "../Layouts/Header";
 import Sidebar from "../Layouts/Sidebar";
-import { Formik, Form, Field, ErrorMessage } from "formik";
+import { useFormik } from "formik";
+import * as Yup from "yup";
 import axios from "axios";
 import { getItem } from "../../Rounting/Authentication";
 import { ToastContainer, toast } from "react-toastify";
@@ -18,15 +19,39 @@ const Profile = () => {
         .get(`http://localhost:5000/users/${getItem()._id}`, values)
         .then((res) => {
           setValues(res.data);
+          editUser.setFieldValue("fullName", res.data.fullName);
+          editUser.setFieldValue("email", res.data.email);
         });
     } catch (err) {
       console.log(err.response);
     }
   }, [setValues]);
 
+  const editUser = useFormik({
+    initialValues: values,
+    validationSchema: Yup.object({
+      fullName: Yup.string()
+        .max(15, "Must be 15 characters or less")
+        .required("Required"),
+      email: Yup.string().email("Invalid email address").required("Required"),
+    }),
+    onSubmit: async (values, { setSubmitting }) => {
+      try {
+        setSubmitting(false);
+        await axios
+          .put(`http://localhost:5000/users/${getItem()._id}`, values)
+          .then((res) => {
+            setValues(res.data);
+          });
+      } catch (err) {
+        toast.error(err.response.data);
+      }
+    },
+  });
+
   return (
     <div>
-      <Header />
+      <Header value={values.fullName} />
       <Sidebar />
       <div
         className="box box-primary"
@@ -59,7 +84,6 @@ const Profile = () => {
             </li>
           </ul>
         </div>
-        {/* /.box-body */}
       </div>
       <div
         className="nav-tabs-custom"
@@ -72,97 +96,51 @@ const Profile = () => {
           marginRight: "31px",
         }}
       >
-        <Formik
-          initialValues={values}
-          validate={(values) => {
-            const errors = {};
-            if (!values.email) {
-              errors.email = "Required";
-            } else if (
-              !values.fullName
-              // !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(values.email)
-            ) {
-              errors.fullName = "Required";
-            }
-            return errors;
-          }}
-          onSubmit={async (values, { setSubmitting }) => {
-            try {
-              setSubmitting(false);
-              await axios
-                .put(`http://localhost:5000/users/${getItem()._id}`, values)
-                .then((res) => {
-                  setValues(res.data);
-                });
-            } catch (err) {
-              toast.error(err.response.data);
-            }
-          }}
-        >
-          {({ isSubmitting }) => (
-            <div className="tab-pane" id="settings">
-              <Form className="form-horizontal">
-                <div className="form-group">
-                  <label htmlFor="inputName" className="col-sm-2 control-label">
-                    FullName
-                  </label>
-                  <div className="col-sm-10">
-                    <Field
-                      type="text"
-                      className="form-control"
-                      id="fullName"
-                      name="fullName"
-                    />
-                  </div>
-                  <ErrorMessage name="fullName" component="div" />
-                </div>
-                <div className="form-group">
-                  <label
-                    htmlFor="inputEmail"
-                    className="col-sm-2 control-label"
-                  >
-                    Email
-                  </label>
-                  <div className="col-sm-10">
-                    <Field
-                      type="email"
-                      className="form-control"
-                      id="email"
-                      name="email"
-                    />
-                  </div>
-                  <ErrorMessage name="email" component="div" />
-                </div>
-                <div className="form-group">
-                  <label htmlFor="inputName" className="col-sm-2 control-label">
-                    Phone No.
-                  </label>
-                  <div className="col-sm-10">
-                    <Field
-                      type="text"
-                      className="form-control"
-                      id="inputName"
-                      name="Phone_number"
-                    />
-                  </div>
-                  <ErrorMessage name="Phone_number" component="div" />
-                </div>
-
-                <div className="form-group">
-                  <div className="col-sm-offset-2 col-sm-10">
-                    <button
-                      type="submit"
-                      disabled={isSubmitting}
-                      className="btn btn-danger"
-                    >
-                      Submit
-                    </button>
-                  </div>
-                </div>
-              </Form>
+        <form onSubmit={editUser.handleSubmit}>
+          <div className="form-group has-feedback">
+            <input
+              type="text"
+              className="form-control"
+              placeholder="Full name"
+              id="fullName"
+              name="fullName"
+              onChange={editUser.handleChange}
+              onBlur={editUser.handleBlur}
+              value={editUser.values.fullName}
+            />
+            {editUser.touched.fullName && editUser.errors.fullName ? (
+              <div style={{ color: "red" }}>{editUser.errors.fullName}</div>
+            ) : null}
+            <span className="glyphicon glyphicon-user form-control-feedback" />
+          </div>
+          <div className="form-group has-feedback">
+            <input
+              type="email"
+              className="form-control"
+              placeholder="Email"
+              id="email"
+              name="email"
+              type="text"
+              onChange={editUser.handleChange}
+              onBlur={editUser.handleBlur}
+              value={editUser.values.email}
+            />
+            {editUser.touched.email && editUser.errors.email ? (
+              <div style={{ color: "red" }}>{editUser.errors.email}</div>
+            ) : null}
+            <span className="glyphicon glyphicon-envelope form-control-feedback" />
+          </div>
+          <>
+            <div className="col-xs-4">
+              <button
+                type="submit"
+                className="btn btn-primary btn-block btn-flat"
+              >
+                Edit User
+              </button>
             </div>
-          )}
-        </Formik>
+          </>
+        </form>
         <ToastContainer />
       </div>
     </div>
