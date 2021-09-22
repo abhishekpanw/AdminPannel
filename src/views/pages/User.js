@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useModal } from "react-hooks-use-modal";
 import axios from "axios";
 import { useFormik } from "formik";
 import Header from "../Layouts/Header";
@@ -9,8 +10,11 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const User = () => {
+  const [Modal, open, close, isOpen] = useModal("root", {
+    preventScroll: true,
+    closeOnOverlayClick: false,
+  });
   const [data, setdata] = useState([]);
-
   const [user, setuser] = useState({
     fullName: "",
     email: "",
@@ -76,7 +80,8 @@ const User = () => {
               return [...prev, res.data];
             });
             resetForm({});
-            toast.success("User Added Succes", {
+            close();
+            toast.success("User Added Successfully", {
               theme: "colored",
             });
           });
@@ -114,6 +119,7 @@ const User = () => {
           console.log(res.data);
           setdata(res.data);
           resetForm({});
+
           toast.success("User Edit Successfully", {
             theme: "colored",
           });
@@ -146,8 +152,7 @@ const User = () => {
             <h3 className="box-title">USER Data Table</h3>
             <button
               className="btn btn-info"
-              data-toggle="modal"
-              data-target="#modal-info"
+              onClick={open}
               style={{
                 float: "right",
                 padding: "0px 42px 2px",
@@ -201,7 +206,6 @@ const User = () => {
         </div>
 
         {/*================================= Edit User ======================================== */}
-
         <div className="modal modal-success fade" id="modal-success">
           <div className="modal-dialog">
             <div className="modal-content">
@@ -271,17 +275,11 @@ const User = () => {
           </div>
         </div>
         {/*================================= Add User ======================================== */}
-
-        <div className="modal modal-info fade" id="modal-info">
+        <Modal>
           <div className="modal-dialog">
             <div className="modal-content">
               <div className="modal-header">
-                <button
-                  type="button"
-                  className="close"
-                  data-dismiss="modal"
-                  aria-label="Close"
-                >
+                <button type="button" className="close" onClick={close}>
                   <span aria-hidden="true">×</span>
                 </button>
                 <h4 className="modal-title">Add User</h4>
@@ -349,19 +347,30 @@ const User = () => {
                   </div>
                   <>
                     <div className="col-xs-4">
-                      <button
-                        type="submit"
-                        className="btn btn-primary btn-block btn-flat"
-                      >
-                        Add User
-                      </button>
+                      <div className="pull-left">
+                        <button
+                          type="submit"
+                          className="btn btn-primary btn-block btn-flat"
+                        >
+                          Add User
+                        </button>
+                      </div>
+                      <div className="pull-right">
+                        <button
+                          type="submit"
+                          className="btn btn-primary btn-block btn-flat"
+                          onClick={close}
+                        >
+                          Close
+                        </button>
+                      </div>
                     </div>
                   </>
                 </form>
               </div>
             </div>
           </div>
-        </div>
+        </Modal>
         <ToastContainer />
       </div>
     </>

@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
-function Sidebar() {
+function Sidebar(props) {
   return (
     <div>
       <aside className="main-sidebar">
@@ -15,7 +15,7 @@ function Sidebar() {
               />
             </div>
             <div className="pull-left info">
-              <p>Abhishek</p>
+              <p>{props.value}</p>
             </div>
           </div>
 

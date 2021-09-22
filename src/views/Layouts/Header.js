@@ -1,13 +1,32 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, Redirect } from "react-router-dom";
+import axios from "axios";
+import { getItem } from "../../Rounting/Authentication";
 
 function Header(props) {
   const [redirect, setRedirect] = useState(false);
+  const [name, setName] = useState({
+    fullName: "",
+    email: "",
+  });
   const logout = () => {
     setRedirect(true);
     localStorage.removeItem("token");
     localStorage.removeItem("user");
   };
+
+  useEffect(() => {
+    try {
+      axios
+        .get(`http://localhost:5000/users/${getItem()._id}`, name)
+        .then((res) => {
+          console.log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@", res.data);
+          setName(res.data);
+        });
+    } catch (err) {
+      console.log(err.response);
+    }
+  }, [props.value]);
 
   return (
     <div>
@@ -47,17 +66,16 @@ function Header(props) {
                     className="user-image"
                     alt="User Image"
                   />
-                  <span className="hidden-xs">{props.value}</span>
+                  <span className="hidden-xs">{name.fullName}</span>
                 </a>
                 <ul className="dropdown-menu">
-                  {/* User image */}
                   <li className="user-header">
                     <img
                       src="assest/Images/user.png"
                       className="img-circle"
                       alt="User Image"
                     />
-                    <p>{props.value}</p>
+                    <p>{name.fullName}</p>
                   </li>
 
                   <li

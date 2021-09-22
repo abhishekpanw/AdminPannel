@@ -52,7 +52,7 @@ const Profile = () => {
   return (
     <div>
       <Header value={values.fullName} />
-      <Sidebar />
+      <Sidebar value={values.fullName} />
       <div
         className="box box-primary"
         style={{
@@ -96,6 +96,17 @@ const Profile = () => {
           marginRight: "31px",
         }}
       >
+        <h2
+          style={{
+            color: "green",
+            textAlign: "center",
+            margin: "0px",
+            padding: "15px",
+            fontFamily: "system-ui",
+          }}
+        >
+          Edit Profile
+        </h2>
         <form onSubmit={editUser.handleSubmit}>
           <div className="form-group has-feedback">
             <input
