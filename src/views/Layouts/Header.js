@@ -32,20 +32,15 @@ function Header(props) {
     <div>
       {redirect && <Redirect to="/signin" />}
       <header className="main-header">
-        {/* Logo */}
         <a href="/" className="logo">
-          {/* mini logo for sidebar mini 50x50 pixels */}
           <span className="logo-mini">
             <b>C</b>QL
           </span>
-          {/* logo for regular state and mobile devices */}
           <span className="logo-lg">
             <b>Cqlsys</b>
           </span>
         </a>
-        {/* Header Navbar: style can be found in header.less */}
         <nav className="navbar navbar-static-top">
-          {/* Sidebar toggle button*/}
           <a
             href="#"
             className="sidebar-toggle"
@@ -56,9 +51,6 @@ function Header(props) {
           </a>
           <div className="navbar-custom-menu">
             <ul className="nav navbar-nav">
-              {/* Messages: style can be found in dropdown.less*/}
-
-              {/* User Account: style can be found in dropdown.less */}
               <li className="dropdown user user-menu">
                 <a href="#" className="dropdown-toggle" data-toggle="dropdown">
                   <img

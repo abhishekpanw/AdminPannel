@@ -8,24 +8,69 @@ import Swal from "sweetalert2";
 import * as Yup from "yup";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import ReactPaginate from "react-paginate";
 
 const User = () => {
   const [Modal, open, close, isOpen] = useModal("root", {
     preventScroll: true,
     closeOnOverlayClick: false,
   });
+
   const [data, setdata] = useState([]);
   const [user, setuser] = useState({
     fullName: "",
     email: "",
   });
 
+  const [modaltype, setmodaltype] = useState();
+
+  const openmodal = (modaltype) => {
+    open();
+    setmodaltype(modaltype);
+  };
+
   useEffect(() => {
     axios.get("http://localhost:5000/users/").then((res) => {
       setdata(res.data);
-      console.log(res.data);
     });
   }, []);
+
+  const [currentPage, setCurrentPage] = useState(0);
+
+  const PER_PAGE = 3;
+
+  function handlePageClick({ selected: selectedPage }) {
+    setCurrentPage(selectedPage);
+  }
+  const offset = currentPage * PER_PAGE;
+  const currentPageData = data.slice(offset, offset + PER_PAGE).map((user) => {
+    return (
+      <tr>
+        <td>{user.fullName}</td>
+        <td>{user.email}</td>
+        <td>
+          <i
+            style={{
+              fontSize: "27px",
+              marginRight: "11px",
+              cursor: "pointer",
+            }}
+            class="fa fa-pencil-square-o"
+            aria-hidden="true"
+            onClick={() => onEdit(user._id)}
+          ></i>
+          <i
+            style={{ fontSize: "27px", cursor: "pointer" }}
+            class="fa fa-trash"
+            onClick={() => deleteAlert(user._id)}
+            aria-hidden="true"
+          ></i>
+        </td>
+      </tr>
+    );
+  });
+
+  const pageCount = Math.ceil(data.length / PER_PAGE);
 
   {
     /*================================= Delete User ======================================== */
@@ -109,7 +154,6 @@ const User = () => {
     onSubmit: async (values, { setSubmitting, resetForm }) => {
       try {
         setSubmitting(false);
-        console.log("User++++++++++++++==", user);
         await axios
           .put(`http://localhost:5000/users/${user._id}`, values)
           .then((res) => {
@@ -119,7 +163,7 @@ const User = () => {
           console.log(res.data);
           setdata(res.data);
           resetForm({});
-
+          close();
           toast.success("User Edit Successfully", {
             theme: "colored",
           });
@@ -134,13 +178,13 @@ const User = () => {
 
   const onEdit = (id) => {
     axios.get(`http://localhost:5000/users/${id}`).then((res) => {
-      console.log(res.data);
       setuser(res.data);
       editUser.setFieldValue("fullName", res.data.fullName);
       editUser.setFieldValue("email", res.data.email);
+      openmodal("edit");
     });
   };
-
+  console.log(modaltype);
   return (
     <>
       <Header />
@@ -150,17 +194,18 @@ const User = () => {
         <div className="box">
           <div className="box-header">
             <h3 className="box-title">USER Data Table</h3>
-            <button
-              className="btn btn-info"
-              onClick={open}
+
+            <i
+              class="fa fa-user-plus"
+              aria-hidden="true"
+              onClick={() => openmodal("add")}
               style={{
                 float: "right",
                 padding: "0px 42px 2px",
-                fontSize: "20px",
+                fontSize: "41px",
+                cursor: "pointer",
               }}
-            >
-              Add User
-            </button>
+            ></i>
           </div>
           <div class="box-body">
             <table class="table table-bordered table-striped">
@@ -168,209 +213,199 @@ const User = () => {
                 <tr>
                   <th>Full Name</th>
                   <th>Email</th>
-                  <th>Status</th>
-                  <th>Option</th>
+                  <th>Action</th>
                 </tr>
               </thead>
-              {data.map((user) => {
-                return (
-                  <tbody>
-                    <tr>
-                      <td>{user.fullName}</td>
-                      <td>{user.email}</td>
-                      <td>
-                        <button
-                          class="btn btn-success"
-                          data-toggle="modal"
-                          data-target="#modal-success"
-                          onClick={() => onEdit(user._id)}
-                        >
-                          Edit
-                        </button>
-                      </td>
-                      <td>
-                        <button
-                          type="button"
-                          class="btn btn-danger"
-                          onClick={() => deleteAlert(user._id)}
-                        >
-                          Delete
-                        </button>
-                      </td>
-                    </tr>
-                  </tbody>
-                );
-              })}
+              <tbody>
+                {currentPageData}
+                <ReactPaginate
+                  previousLabel={"← Previous"}
+                  nextLabel={"Next →"}
+                  pageCount={pageCount}
+                  onPageChange={handlePageClick}
+                  containerClassName={"pagination"}
+                  previousLinkClassName={"pagination__link"}
+                  nextLinkClassName={"pagination__link"}
+                  disabledClassName={"pagination__link--disabled"}
+                  activeClassName={"pagination__link--active"}
+                />
+              </tbody>
             </table>
           </div>
         </div>
 
         {/*================================= Edit User ======================================== */}
-        <div className="modal modal-success fade" id="modal-success">
-          <div className="modal-dialog">
-            <div className="modal-content">
-              <div className="modal-header">
-                <button
-                  type="button"
-                  className="close"
-                  data-dismiss="modal"
-                  aria-label="Close"
-                >
-                  <span aria-hidden="true">×</span>
-                </button>
-                <h4 className="modal-title">Edit Form</h4>
-              </div>
-              <div className="modal-body" style={{ height: "286px" }}>
-                <form onSubmit={editUser.handleSubmit}>
-                  <div className="form-group has-feedback">
-                    <input
-                      type="text"
-                      className="form-control"
-                      placeholder="Full name"
-                      id="fullName"
-                      name="fullName"
-                      onChange={editUser.handleChange}
-                      onBlur={editUser.handleBlur}
-                      value={editUser.values.fullName}
-                    />
-                    {editUser.touched.fullName && editUser.errors.fullName ? (
-                      <div style={{ color: "red" }}>
-                        {editUser.errors.fullName}
-                      </div>
-                    ) : null}
-                    <span className="glyphicon glyphicon-user form-control-feedback" />
+
+        {modaltype == "edit" ? (
+          <Modal>
+            <div>
+              <div className="modal-dialog">
+                <div className="modal-content">
+                  <div className="modal-header">
+                    <button
+                      type="button"
+                      className="close"
+                      data-dismiss="modal"
+                      aria-label="Close"
+                      onClick={close}
+                    >
+                      <span aria-hidden="true">×</span>
+                    </button>
+                    <h4 className="modal-title">Edit Form</h4>
                   </div>
-                  <div className="form-group has-feedback">
-                    <input
-                      type="email"
-                      className="form-control"
-                      placeholder="Email"
-                      id="email"
-                      name="email"
-                      type="text"
-                      onChange={editUser.handleChange}
-                      onBlur={editUser.handleBlur}
-                      value={editUser.values.email}
-                    />
-                    {editUser.touched.email && editUser.errors.email ? (
-                      <div style={{ color: "red" }}>
-                        {editUser.errors.email}
+                  <div className="modal-body" style={{ height: "286px" }}>
+                    <form onSubmit={editUser.handleSubmit}>
+                      <div className="form-group has-feedback">
+                        <input
+                          type="text"
+                          className="form-control"
+                          placeholder="Full name"
+                          id="fullName"
+                          name="fullName"
+                          onChange={editUser.handleChange}
+                          onBlur={editUser.handleBlur}
+                          value={editUser.values.fullName}
+                        />
+                        {editUser.touched.fullName &&
+                        editUser.errors.fullName ? (
+                          <div style={{ color: "red" }}>
+                            {editUser.errors.fullName}
+                          </div>
+                        ) : null}
+                        <span className="glyphicon glyphicon-user form-control-feedback" />
                       </div>
-                    ) : null}
-                    <span className="glyphicon glyphicon-envelope form-control-feedback" />
+                      <div className="form-group has-feedback">
+                        <input
+                          type="email"
+                          className="form-control"
+                          placeholder="Email"
+                          id="email"
+                          name="email"
+                          type="text"
+                          onChange={editUser.handleChange}
+                          onBlur={editUser.handleBlur}
+                          value={editUser.values.email}
+                        />
+                        {editUser.touched.email && editUser.errors.email ? (
+                          <div style={{ color: "red" }}>
+                            {editUser.errors.email}
+                          </div>
+                        ) : null}
+                        <span className="glyphicon glyphicon-envelope form-control-feedback" />
+                      </div>
+                      <>
+                        <div className="col-xs-4">
+                          <button
+                            type="submit"
+                            className="btn btn-primary btn-block btn-flat"
+                          >
+                            Edit User
+                          </button>
+                        </div>
+                      </>
+                    </form>
                   </div>
-                  <>
-                    <div className="col-xs-4">
-                      <button
-                        type="submit"
-                        className="btn btn-primary btn-block btn-flat"
-                      >
-                        Edit User
-                      </button>
-                    </div>
-                  </>
-                </form>
+                </div>
               </div>
             </div>
-          </div>
-        </div>
+          </Modal>
+        ) : (
+          ""
+        )}
         {/*================================= Add User ======================================== */}
-        <Modal>
-          <div className="modal-dialog">
-            <div className="modal-content">
-              <div className="modal-header">
-                <button type="button" className="close" onClick={close}>
-                  <span aria-hidden="true">×</span>
-                </button>
-                <h4 className="modal-title">Add User</h4>
-              </div>
-              <div
-                className="modal-body"
-                style={{
-                  height: "286px",
-                  backgroundColor: "#d0d5d6 !important",
-                }}
-              >
-                <form onSubmit={addUser.handleSubmit}>
-                  <div className="form-group has-feedback">
-                    <input
-                      type="text"
-                      className="form-control"
-                      placeholder="Full name"
-                      id="fullName"
-                      name="fullName"
-                      onChange={addUser.handleChange}
-                      onBlur={addUser.handleBlur}
-                      value={addUser.values.fullName}
-                    />
-                    {addUser.touched.fullName && addUser.errors.fullName ? (
-                      <div style={{ color: "red" }}>
-                        {addUser.errors.fullName}
-                      </div>
-                    ) : null}
-                    <span className="glyphicon glyphicon-user form-control-feedback" />
-                  </div>
-                  <div className="form-group has-feedback">
-                    <input
-                      type="email"
-                      className="form-control"
-                      placeholder="Email"
-                      id="email"
-                      name="email"
-                      type="text"
-                      onChange={addUser.handleChange}
-                      onBlur={addUser.handleBlur}
-                      value={addUser.values.email}
-                    />
-                    {addUser.touched.email && addUser.errors.email ? (
-                      <div style={{ color: "red" }}>{addUser.errors.email}</div>
-                    ) : null}
-                    <span className="glyphicon glyphicon-envelope form-control-feedback" />
-                  </div>
-                  <div className="form-group has-feedback">
-                    <input
-                      type="password"
-                      className="form-control"
-                      placeholder="Password"
-                      id="password"
-                      name="password"
-                      onChange={addUser.handleChange}
-                      onBlur={addUser.handleBlur}
-                      value={addUser.values.password}
-                    />
-                    {addUser.touched.password && addUser.errors.password ? (
-                      <div style={{ color: "red" }}>
-                        {addUser.errors.password}
-                      </div>
-                    ) : null}
-                    <span className="glyphicon glyphicon-lock form-control-feedback" />
-                  </div>
-                  <>
-                    <div className="col-xs-4">
-                      <div className="pull-left">
-                        <button
-                          type="submit"
-                          className="btn btn-primary btn-block btn-flat"
-                        >
-                          Add User
-                        </button>
-                      </div>
-                      <div className="pull-right">
-                        <button
-                          type="submit"
-                          className="btn btn-primary btn-block btn-flat"
-                          onClick={close}
-                        >
-                          Close
-                        </button>
-                      </div>
+        {modaltype == "add" ? (
+          <Modal>
+            <div className="modal-dialog">
+              <div className="modal-content">
+                <div className="modal-header">
+                  <button type="button" className="close" onClick={close}>
+                    <span aria-hidden="true">×</span>
+                  </button>
+                  <h4 className="modal-title">Add User</h4>
+                </div>
+                <div
+                  className="modal-body"
+                  style={{
+                    height: "286px",
+                    backgroundColor: "#d0d5d6 !important",
+                  }}
+                >
+                  <form onSubmit={addUser.handleSubmit}>
+                    <div className="form-group has-feedback">
+                      <input
+                        type="text"
+                        className="form-control"
+                        placeholder="Full name"
+                        id="fullName"
+                        name="fullName"
+                        onChange={addUser.handleChange}
+                        onBlur={addUser.handleBlur}
+                        value={addUser.values.fullName}
+                      />
+                      {addUser.touched.fullName && addUser.errors.fullName ? (
+                        <div style={{ color: "red" }}>
+                          {addUser.errors.fullName}
+                        </div>
+                      ) : null}
+                      <span className="glyphicon glyphicon-user form-control-feedback" />
                     </div>
-                  </>
-                </form>
+                    <div className="form-group has-feedback">
+                      <input
+                        type="email"
+                        className="form-control"
+                        placeholder="Email"
+                        id="email"
+                        name="email"
+                        type="text"
+                        onChange={addUser.handleChange}
+                        onBlur={addUser.handleBlur}
+                        value={addUser.values.email}
+                      />
+                      {addUser.touched.email && addUser.errors.email ? (
+                        <div style={{ color: "red" }}>
+                          {addUser.errors.email}
+                        </div>
+                      ) : null}
+                      <span className="glyphicon glyphicon-envelope form-control-feedback" />
+                    </div>
+                    <div className="form-group has-feedback">
+                      <input
+                        type="password"
+                        className="form-control"
+                        placeholder="Password"
+                        id="password"
+                        name="password"
+                        onChange={addUser.handleChange}
+                        onBlur={addUser.handleBlur}
+                        value={addUser.values.password}
+                      />
+                      {addUser.touched.password && addUser.errors.password ? (
+                        <div style={{ color: "red" }}>
+                          {addUser.errors.password}
+                        </div>
+                      ) : null}
+                      <span className="glyphicon glyphicon-lock form-control-feedback" />
+                    </div>
+                    <>
+                      <div className="col-xs-4">
+                        <div className="pull-left">
+                          <button
+                            type="submit"
+                            className="btn btn-primary btn-block btn-flat"
+                          >
+                            Add User
+                          </button>
+                        </div>
+                      </div>
+                    </>
+                  </form>
+                </div>
               </div>
             </div>
-          </div>
-        </Modal>
+          </Modal>
+        ) : (
+          ""
+        )}
         <ToastContainer />
       </div>
     </>

@@ -74,12 +74,15 @@ const Profile = () => {
           <p className="text-muted text-center">React Speciallist</p>
           <ul className="list-group list-group-unbordered">
             <li className="list-group-item">
+              <h6>Name</h6>
               <b>{values.fullName}</b> <a className="pull-right"></a>
             </li>
             <li className="list-group-item">
+              <h6>Email</h6>
               <b>{values.email}</b> <a className="pull-right"></a>
             </li>
             <li className="list-group-item">
+              <h6>Phone Number</h6>
               <b>123456789</b> <a className="pull-right"></a>
             </li>
           </ul>
@@ -109,6 +112,7 @@ const Profile = () => {
         </h2>
         <form onSubmit={editUser.handleSubmit}>
           <div className="form-group has-feedback">
+            <label>Full Name</label>
             <input
               type="text"
               className="form-control"
@@ -125,6 +129,7 @@ const Profile = () => {
             <span className="glyphicon glyphicon-user form-control-feedback" />
           </div>
           <div className="form-group has-feedback">
+            <label>Email</label>
             <input
               type="email"
               className="form-control"

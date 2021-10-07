@@ -9,7 +9,7 @@ function Footer() {
         </div>
         <strong>
           Copyright © 2014-2019 <a href="https://adminlte.io">AdminLTE</a>.
-        </strong>{" "}
+        </strong>
         All rights reserved.
       </footer>
     </div>
