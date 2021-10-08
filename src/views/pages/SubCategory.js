@@ -11,18 +11,17 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./button.css";
 
-// const PER_PAGE = 4;
-
 function SubCategory() {
-  // const [currentPage, setCurrentPage] = useState(0);
   const [data, setdata] = useState([]);
   const [modaltype, setmodaltype] = useState();
   const [drop, setDrop] = useState([]);
+  const [categoryIdvalue, setCategoryIdvalue] = useState("");
 
   useEffect(() => {
     try {
       axios.get("http://localhost:5000/allcategory").then((res) => {
         setDrop(res.data.user);
+        console.log();
       });
     } catch (err) {
       console.log(err);
@@ -130,6 +129,7 @@ function SubCategory() {
   }
   const editCategory = useFormik({
     initialValues: user,
+    enableReinitialize: true,
     validationSchema: Yup.object({
       title: Yup.string()
         .max(15, "Must be 15 characters or less")
@@ -163,6 +163,7 @@ function SubCategory() {
   const onEdit = (id) => {
     axios.get(`http://localhost:5000/getSubCategory/${id}`).then((res) => {
       setuser(res.data);
+      setCategoryIdvalue(res.data.categoryId);
       editCategory.setFieldValue("title", res.data.title);
       openmodal("edit");
     });
@@ -420,6 +421,21 @@ function SubCategory() {
                   <div className="modal-body" style={{ height: "286px" }}>
                     <form onSubmit={editCategory.handleSubmit}>
                       <div className="form-group has-feedback">
+                        <select
+                          id="categoryId"
+                          name="categoryId"
+                          className="form-control"
+                          value={categoryIdvalue}
+                        >
+                          <option>Please Select Category</option>;
+                          {drop.map((c, index) => {
+                            return (
+                              <>
+                                <option value={c._id}>{c.title}</option>;
+                              </>
+                            );
+                          })}
+                        </select>
                         <input
                           type="text"
                           className="form-control"
@@ -429,6 +445,7 @@ function SubCategory() {
                           onChange={editCategory.handleChange}
                           onBlur={editCategory.handleBlur}
                           value={editCategory.values.title}
+                          style={{ marginTop: "16px" }}
                         />
                         {editCategory.touched.title &&
                         editCategory.errors.title ? (

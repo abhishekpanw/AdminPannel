@@ -5,7 +5,6 @@ import { useModal } from "react-hooks-use-modal";
 import { useFormik } from "formik";
 import axios from "axios";
 import ReactPaginate from "react-paginate";
-import Toggle from "react-toggle";
 import * as Yup from "yup";
 import Swal from "sweetalert2";
 import { ToastContainer, toast } from "react-toastify";

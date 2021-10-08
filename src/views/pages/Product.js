@@ -17,6 +17,7 @@ function Product() {
   const [drop, setDrop] = useState([]);
   const [sub, setSub] = useState([]);
   const [setid, setID] = useState([]);
+  const [categoryIdd, setcategoryIdd] = useState([]);
 
   const getProduct = () => {
     try {
@@ -32,6 +33,7 @@ function Product() {
     try {
       axios.get(`http://localhost:5000/subcategoryId/${id}`).then((res) => {
         setSub(res.data);
+        console.log(res.data);
       });
     } catch (err) {
       console.log(err);
@@ -54,6 +56,7 @@ function Product() {
     setmodaltype(modaltype);
   };
   const [user, setuser] = useState({
+    subcategoryId: "",
     title: "",
     image: "",
     status: "",
@@ -179,6 +182,7 @@ function Product() {
   const onEdit = (id) => {
     axios.get(`http://localhost:5000/ProductId/${id}`).then((res) => {
       setuser(res.data);
+      setcategoryIdd(res.data.categoryId);
       editCategory.setFieldValue("title", res.data.title);
       openmodal("edit");
     });
@@ -450,9 +454,25 @@ function Product() {
                     </button>
                     <h4 className="modal-title">Edit Product</h4>
                   </div>
-                  <div className="modal-body" style={{ height: "248px" }}>
+                  <div className="modal-body" style={{ height: "325px" }}>
                     <form onSubmit={editCategory.handleSubmit}>
                       <div className="form-group has-feedback">
+                        <select
+                          id="categoryId"
+                          name="categoryId"
+                          className="form-control"
+                          value={categoryIdd}
+                        >
+                          <option>Please Select Category</option>;
+                          {drop.map((c, index) => {
+                            return (
+                              <>
+                                <option value={c._id}>{c.title}</option>;
+                              </>
+                            );
+                          })}
+                        </select>
+
                         <input
                           type="text"
                           className="form-control"
@@ -462,6 +482,7 @@ function Product() {
                           onChange={editCategory.handleChange}
                           onBlur={editCategory.handleBlur}
                           value={editCategory.values.title}
+                          style={{ marginTop: "12px" }}
                         />
                         {editCategory.touched.title &&
                         editCategory.errors.title ? (

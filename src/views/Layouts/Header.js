@@ -20,7 +20,6 @@ function Header(props) {
       axios
         .get(`http://localhost:5000/users/${getItem()._id}`, name)
         .then((res) => {
-          console.log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@", res.data);
           setName(res.data);
         });
     } catch (err) {
