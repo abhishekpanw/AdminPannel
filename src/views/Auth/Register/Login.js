@@ -3,7 +3,7 @@ import { Link, Redirect } from "react-router-dom";
 import { Field, Formik, ErrorMessage, Form } from "formik";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { isLogin } from "../../Rounting/Authentication";
+import { isLogin } from "../../../Rounting/Authentication";
 import axios from "axios";
 
 const Login = () => {
@@ -120,7 +120,7 @@ const Login = () => {
             )}
           </Formik>
 
-          <a href="#">I forgot my password</a>
+          <a href="/forgot">I forgot my password</a>
           <br />
           <Link to="/signup" className="text-center">
             Register a new membership

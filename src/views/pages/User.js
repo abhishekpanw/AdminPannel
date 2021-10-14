@@ -256,6 +256,7 @@ const User = () => {
                   <div className="modal-body" style={{ height: "286px" }}>
                     <form onSubmit={editUser.handleSubmit}>
                       <div className="form-group has-feedback">
+                        <label for="exampleInputEmail1">Full Name</label>
                         <input
                           type="text"
                           className="form-control"
@@ -275,6 +276,7 @@ const User = () => {
                         <span className="glyphicon glyphicon-user form-control-feedback" />
                       </div>
                       <div className="form-group has-feedback">
+                        <label for="exampleInputEmail1">Email</label>
                         <input
                           type="email"
                           className="form-control"
@@ -326,12 +328,13 @@ const User = () => {
                 <div
                   className="modal-body"
                   style={{
-                    height: "286px",
+                    height: "336px",
                     backgroundColor: "#d0d5d6 !important",
                   }}
                 >
                   <form onSubmit={addUser.handleSubmit}>
                     <div className="form-group has-feedback">
+                      <label for="exampleInputEmail1">Full Name</label>
                       <input
                         type="text"
                         className="form-control"
@@ -350,6 +353,7 @@ const User = () => {
                       <span className="glyphicon glyphicon-user form-control-feedback" />
                     </div>
                     <div className="form-group has-feedback">
+                      <label for="exampleInputEmail1">Email</label>
                       <input
                         type="email"
                         className="form-control"
@@ -369,6 +373,7 @@ const User = () => {
                       <span className="glyphicon glyphicon-envelope form-control-feedback" />
                     </div>
                     <div className="form-group has-feedback">
+                      <label for="exampleInputEmail1">Password</label>
                       <input
                         type="password"
                         className="form-control"

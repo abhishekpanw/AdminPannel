@@ -4,7 +4,7 @@ import Sidebar from "../Layouts/Sidebar";
 import { useModal } from "react-hooks-use-modal";
 import { useFormik } from "formik";
 import axios from "axios";
-import ReactPaginate from "react-paginate";
+import Pagination from "react-js-pagination";
 import * as Yup from "yup";
 import Swal from "sweetalert2";
 import { ToastContainer, toast } from "react-toastify";
@@ -19,9 +19,13 @@ function Product() {
   const [setid, setID] = useState([]);
   const [categoryIdd, setcategoryIdd] = useState([]);
 
+  const [activePage, setActivePage] = useState(1);
+  const [itemsCountPerPage, setItemsCountPerPage] = useState({});
+  const [totalItemsCount, setTotalItemsCount] = useState({});
+
   const getProduct = () => {
     try {
-      axios.get("http://localhost:5000/allcategory").then((res) => {
+      axios.get(`http://localhost:5000/allcategory`).then((res) => {
         setDrop(res.data.user);
       });
     } catch (err) {
@@ -64,14 +68,22 @@ function Product() {
 
   useEffect(() => {
     try {
-      axios.get("http://localhost:5000/getProduct").then((res) => {
-        console.log(res.data);
-        setdata(res.data.user);
-      });
+      axios
+        .get(`http://localhost:5000/getProduct?page=${activePage}`)
+        .then((res) => {
+          console.log(res.data);
+          setdata(res.data.user);
+          setItemsCountPerPage(res.data.per_page);
+          setTotalItemsCount(res.data.total);
+        });
     } catch (err) {
       console.log(err);
     }
-  }, [setdata]);
+  }, [setdata, activePage]);
+
+  const handlePage = (page) => {
+    setActivePage(page);
+  };
 
   {
     /*========================================== Add Product ================================ */
@@ -236,7 +248,7 @@ function Product() {
                       <td>
                         <>
                           {elem.status ? (
-                            <button
+                            <p
                               style={{
                                 fontSize: "17px",
                                 backgroundColor: "green",
@@ -249,9 +261,9 @@ function Product() {
                               }}
                             >
                               Active
-                            </button>
+                            </p>
                           ) : (
-                            <button
+                            <p
                               style={{
                                 fontSize: "17px",
                                 backgroundColor: "red",
@@ -264,7 +276,7 @@ function Product() {
                               }}
                             >
                               Inactive
-                            </button>
+                            </p>
                           )}
                         </>
                       </td>
@@ -292,18 +304,13 @@ function Product() {
               })}
             </table>
 
-            <ReactPaginate
-              previousLabel={"← Previous"}
-              nextLabel={"Next →"}
-              // pageCount={pageCount}
-              // onPageChange={handlePageClick}
-              containerClassName={"pagination"}
-              previousLinkClassName={"pagination__link"}
-              nextLinkClassName={"pagination__link"}
-              disabledClassName={"pagination__link--disabled"}
-              activeClassName={"pagination__link--active"}
+            <Pagination
+              activePage={activePage}
+              itemsCountPerPage={itemsCountPerPage}
+              totalItemsCount={totalItemsCount}
+              pageRangeDisplayed={5}
+              onChange={handlePage}
             />
-            {/* {currentPageData} */}
           </div>
         </div>
         {/*================================= Add Product ======================================== */}
@@ -320,12 +327,13 @@ function Product() {
                 <div
                   className="modal-body"
                   style={{
-                    height: "334px",
+                    height: "430px",
                     backgroundColor: "#d0d5d6 !important",
                   }}
                 >
                   <form onSubmit={addCategory.handleSubmit}>
                     <div className="form-group has-feedback">
+                      <label for="exampleInputEmail1">Category</label>
                       <select
                         id="categoryId"
                         name="categoryId"
@@ -341,13 +349,12 @@ function Product() {
                           );
                         })}
                       </select>
-
+                      <label for="exampleInputEmail1">SubCategory</label>
                       <select
                         id="subcategoryId"
                         name="subcategoryId"
                         className="form-control"
                         onChange={addCategory.handleChange}
-                        style={{ marginTop: "20px" }}
                       >
                         <option>Please Select SubCategory</option>;
                         {sub.map((c, index) => {
@@ -358,7 +365,12 @@ function Product() {
                           );
                         })}
                       </select>
-
+                      <label
+                        for="exampleInputEmail1"
+                        style={{ marginTop: "5px" }}
+                      >
+                        Title
+                      </label>
                       <input
                         type="text"
                         className="form-control"
@@ -368,7 +380,6 @@ function Product() {
                         onChange={addCategory.handleChange}
                         onBlur={addCategory.handleBlur}
                         value={addCategory.values.title}
-                        style={{ marginTop: "16px" }}
                       />
                       {addCategory.touched.title && addCategory.errors.title ? (
                         <div style={{ color: "red" }}>
@@ -378,6 +389,7 @@ function Product() {
                       <span className="glyphicon glyphicon-user form-control-feedback" />
                     </div>
                     <div className="form-group has-feedback">
+                      <label for="exampleInputEmail1">Image</label>
                       <input
                         type="file"
                         className="form-control"
@@ -397,6 +409,7 @@ function Product() {
                       ) : null}
                       <span className="glyphicon glyphicon-envelope form-control-feedback" />
                     </div>
+                    <label for="exampleInputEmail1">Status</label>
                     <select
                       style={{
                         marginBottom: "15px",
@@ -454,9 +467,13 @@ function Product() {
                     </button>
                     <h4 className="modal-title">Edit Product</h4>
                   </div>
-                  <div className="modal-body" style={{ height: "325px" }}>
+                  <div className="modal-body" style={{ height: "380px" }}>
                     <form onSubmit={editCategory.handleSubmit}>
-                      <div className="form-group has-feedback">
+                      <div
+                        className="form-group has-feedback"
+                        style={{ margin: "0px" }}
+                      >
+                        <label for="exampleInputEmail1">Main Category</label>
                         <select
                           id="categoryId"
                           name="categoryId"
@@ -472,7 +489,12 @@ function Product() {
                             );
                           })}
                         </select>
-
+                        <label
+                          for="exampleInputEmail1"
+                          style={{ marginTop: "6px" }}
+                        >
+                          Product Name
+                        </label>
                         <input
                           type="text"
                           className="form-control"
@@ -482,7 +504,6 @@ function Product() {
                           onChange={editCategory.handleChange}
                           onBlur={editCategory.handleBlur}
                           value={editCategory.values.title}
-                          style={{ marginTop: "12px" }}
                         />
                         {editCategory.touched.title &&
                         editCategory.errors.title ? (
@@ -493,6 +514,7 @@ function Product() {
                         <span className="glyphicon glyphicon-user form-control-feedback" />
                       </div>
                       <div className="form-group has-feedback">
+                        <label for="exampleInputEmail1">Image</label>
                         <input
                           type="file"
                           className="form-control"
@@ -516,6 +538,7 @@ function Product() {
                         ) : null}
                         <span className="glyphicon glyphicon-envelope form-control-feedback" />
                       </div>
+                      <label for="exampleInputEmail1">Status</label>
                       <select
                         style={{
                           marginBottom: "15px",

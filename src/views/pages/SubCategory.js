@@ -4,9 +4,9 @@ import Sidebar from "../Layouts/Sidebar";
 import { useModal } from "react-hooks-use-modal";
 import { useFormik } from "formik";
 import axios from "axios";
-import ReactPaginate from "react-paginate";
 import * as Yup from "yup";
 import Swal from "sweetalert2";
+import Pagination from "react-js-pagination";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./button.css";
@@ -16,6 +16,10 @@ function SubCategory() {
   const [modaltype, setmodaltype] = useState();
   const [drop, setDrop] = useState([]);
   const [categoryIdvalue, setCategoryIdvalue] = useState("");
+
+  const [activePage, setActivePage] = useState(1);
+  const [itemsCountPerPage, setItemsCountPerPage] = useState({});
+  const [totalItemsCount, setTotalItemsCount] = useState({});
 
   useEffect(() => {
     try {
@@ -42,17 +46,6 @@ function SubCategory() {
     image: "",
     status: "",
   });
-
-  useEffect(() => {
-    try {
-      axios.get("http://localhost:5000/allSubCategory").then((res) => {
-        console.log(res.data);
-        setdata(res.data.user);
-      });
-    } catch (err) {
-      console.log(err);
-    }
-  }, [setdata]);
 
   {
     /*========================================== Add SubCategory ================================ */
@@ -168,6 +161,24 @@ function SubCategory() {
       openmodal("edit");
     });
   };
+  useEffect(() => {
+    try {
+      axios
+        .get(`http://localhost:5000/allSubCategory?page=${activePage}`)
+        .then((res) => {
+          setdata(res.data.user);
+          setItemsCountPerPage(res.data.per_page);
+          setTotalItemsCount(res.data.total);
+        });
+    } catch (err) {
+      console.log(err);
+    }
+  }, [setdata, activePage]);
+
+  const handlePage = (page) => {
+    setActivePage(page);
+  };
+
   return (
     <>
       <Header />
@@ -201,7 +212,6 @@ function SubCategory() {
                   <th>Action</th>
                 </tr>
               </thead>
-
               {data.map((elem) => {
                 return (
                   <tbody>
@@ -217,7 +227,7 @@ function SubCategory() {
                       <td>
                         <>
                           {elem.status ? (
-                            <button
+                            <p
                               style={{
                                 fontSize: "17px",
                                 backgroundColor: "green",
@@ -230,9 +240,9 @@ function SubCategory() {
                               }}
                             >
                               Active
-                            </button>
+                            </p>
                           ) : (
-                            <button
+                            <p
                               style={{
                                 fontSize: "17px",
                                 backgroundColor: "red",
@@ -245,7 +255,7 @@ function SubCategory() {
                               }}
                             >
                               Inactive
-                            </button>
+                            </p>
                           )}
                         </>
                       </td>
@@ -271,22 +281,17 @@ function SubCategory() {
                   </tbody>
                 );
               })}
+              <Pagination
+                activePage={activePage}
+                itemsCountPerPage={itemsCountPerPage}
+                totalItemsCount={totalItemsCount}
+                pageRangeDisplayed={5}
+                onChange={handlePage}
+              />
             </table>
-
-            <ReactPaginate
-              previousLabel={"← Previous"}
-              nextLabel={"Next →"}
-              // pageCount={pageCount}
-              // onPageChange={handlePageClick}
-              containerClassName={"pagination"}
-              previousLinkClassName={"pagination__link"}
-              nextLinkClassName={"pagination__link"}
-              disabledClassName={"pagination__link--disabled"}
-              activeClassName={"pagination__link--active"}
-            />
-            {/* {currentPageData} */}
           </div>
         </div>
+
         {/*================================= Add SubCategory ======================================== */}
         {modaltype == "add" ? (
           <Modal>
@@ -301,12 +306,13 @@ function SubCategory() {
                 <div
                   className="modal-body"
                   style={{
-                    height: "286px",
+                    height: "384px",
                     backgroundColor: "#d0d5d6 !important",
                   }}
                 >
                   <form onSubmit={addCategory.handleSubmit}>
                     <div className="form-group has-feedback">
+                      <label for="exampleInputEmail1">Category</label>
                       <select
                         id="categoryId"
                         name="categoryId"
@@ -323,6 +329,12 @@ function SubCategory() {
                             );
                           })}
                       </select>
+                      <label
+                        for="exampleInputEmail1"
+                        style={{ marginTop: "6px" }}
+                      >
+                        Title
+                      </label>
                       <input
                         type="text"
                         className="form-control"
@@ -332,7 +344,6 @@ function SubCategory() {
                         onChange={addCategory.handleChange}
                         onBlur={addCategory.handleBlur}
                         value={addCategory.values.title}
-                        style={{ marginTop: "16px" }}
                       />
                       {addCategory.touched.title && addCategory.errors.title ? (
                         <div style={{ color: "red" }}>
@@ -342,6 +353,7 @@ function SubCategory() {
                       <span className="glyphicon glyphicon-user form-control-feedback" />
                     </div>
                     <div className="form-group has-feedback">
+                      <label for="exampleInputEmail1">Image</label>
                       <input
                         type="file"
                         className="form-control"
@@ -361,6 +373,7 @@ function SubCategory() {
                       ) : null}
                       <span className="glyphicon glyphicon-envelope form-control-feedback" />
                     </div>
+                    <label for="exampleInputEmail1">Status</label>
                     <select
                       style={{
                         marginBottom: "15px",
@@ -418,9 +431,13 @@ function SubCategory() {
                     </button>
                     <h4 className="modal-title">Edit SubCategory</h4>
                   </div>
-                  <div className="modal-body" style={{ height: "286px" }}>
+                  <div className="modal-body" style={{ height: "360px" }}>
                     <form onSubmit={editCategory.handleSubmit}>
-                      <div className="form-group has-feedback">
+                      <div
+                        className="form-group has-feedback"
+                        style={{ margin: "0px" }}
+                      >
+                        <label for="exampleInputEmail1">Category</label>
                         <select
                           id="categoryId"
                           name="categoryId"
@@ -436,6 +453,12 @@ function SubCategory() {
                             );
                           })}
                         </select>
+                        <label
+                          for="exampleInputEmail1"
+                          style={{ marginTop: "6px" }}
+                        >
+                          SubCategory
+                        </label>
                         <input
                           type="text"
                           className="form-control"
@@ -445,7 +468,6 @@ function SubCategory() {
                           onChange={editCategory.handleChange}
                           onBlur={editCategory.handleBlur}
                           value={editCategory.values.title}
-                          style={{ marginTop: "16px" }}
                         />
                         {editCategory.touched.title &&
                         editCategory.errors.title ? (
@@ -456,6 +478,12 @@ function SubCategory() {
                         <span className="glyphicon glyphicon-user form-control-feedback" />
                       </div>
                       <div className="form-group has-feedback">
+                        <label
+                          for="exampleInputEmail1"
+                          style={{ marginTop: "6px" }}
+                        >
+                          Image
+                        </label>
                         <input
                           type="file"
                           className="form-control"
@@ -479,6 +507,7 @@ function SubCategory() {
                         ) : null}
                         <span className="glyphicon glyphicon-envelope form-control-feedback" />
                       </div>
+                      <label for="exampleInputEmail1">Status</label>
                       <select
                         style={{
                           marginBottom: "15px",

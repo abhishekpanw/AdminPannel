@@ -4,7 +4,7 @@ import Sidebar from "../Layouts/Sidebar";
 import { useModal } from "react-hooks-use-modal";
 import { useFormik } from "formik";
 import axios from "axios";
-import ReactPaginate from "react-paginate";
+import Pagination from "react-js-pagination";
 import * as Yup from "yup";
 import Swal from "sweetalert2";
 import { ToastContainer, toast } from "react-toastify";
@@ -14,6 +14,10 @@ import "./button.css";
 function Category() {
   const [data, setdata] = useState([]);
   const [modaltype, setmodaltype] = useState();
+
+  const [activePage, setActivePage] = useState(1);
+  const [itemsCountPerPage, setItemsCountPerPage] = useState({});
+  const [totalItemsCount, setTotalItemsCount] = useState({});
 
   const [Modal, open, close, isOpen] = useModal("root", {
     preventScroll: true,
@@ -32,14 +36,21 @@ function Category() {
 
   useEffect(() => {
     try {
-      axios.get("http://localhost:5000/allcategory").then((res) => {
-        setdata(res.data.user);
-        console.log(res.data.user);
-      });
+      axios
+        .get(`http://localhost:5000/allcategory?page=${activePage}`)
+        .then((res) => {
+          setdata(res.data.user);
+          setItemsCountPerPage(res.data.per_page);
+          setTotalItemsCount(res.data.total);
+        });
     } catch (err) {
       console.log(err);
     }
-  }, []);
+  }, [setdata, activePage]);
+
+  const handlePage = (page) => {
+    setActivePage(page);
+  };
 
   {
     /*========================================== Add Category ================================ */
@@ -200,7 +211,7 @@ function Category() {
                       <td>
                         <h4>
                           {elem.status ? (
-                            <button
+                            <p
                               style={{
                                 fontSize: "17px",
                                 backgroundColor: "green",
@@ -213,9 +224,9 @@ function Category() {
                               }}
                             >
                               Active
-                            </button>
+                            </p>
                           ) : (
-                            <button
+                            <p
                               style={{
                                 fontSize: "17px",
                                 backgroundColor: "red",
@@ -228,7 +239,7 @@ function Category() {
                               }}
                             >
                               Inactive
-                            </button>
+                            </p>
                           )}
                         </h4>
                       </td>
@@ -256,17 +267,12 @@ function Category() {
                 );
               })}
             </table>
-
-            <ReactPaginate
-              previousLabel={"← Previous"}
-              nextLabel={"Next →"}
-              //   pageCount={pageCount}
-              //onPageChange={handlePageClick}
-              containerClassName={"pagination"}
-              previousLinkClassName={"pagination__link"}
-              nextLinkClassName={"pagination__link"}
-              disabledClassName={"pagination__link--disabled"}
-              activeClassName={"pagination__link--active"}
+            <Pagination
+              activePage={activePage}
+              itemsCountPerPage={itemsCountPerPage}
+              totalItemsCount={totalItemsCount}
+              pageRangeDisplayed={5}
+              onChange={handlePage}
             />
           </div>
         </div>
@@ -284,12 +290,13 @@ function Category() {
                 <div
                   className="modal-body"
                   style={{
-                    height: "286px",
+                    height: "317px",
                     backgroundColor: "#d0d5d6 !important",
                   }}
                 >
                   <form onSubmit={addCategory.handleSubmit}>
                     <div className="form-group has-feedback">
+                      <label for="exampleInputEmail1">Title</label>
                       <input
                         type="text"
                         className="form-control"
@@ -308,6 +315,7 @@ function Category() {
                       <span className="glyphicon glyphicon-user form-control-feedback" />
                     </div>
                     <div className="form-group has-feedback">
+                      <label for="exampleInputEmail1">Image</label>
                       <input
                         type="file"
                         className="form-control"
@@ -327,6 +335,7 @@ function Category() {
                       ) : null}
                       <span className="glyphicon glyphicon-envelope form-control-feedback" />
                     </div>
+                    <label for="exampleInputEmail1">Status</label>
                     <select
                       style={{
                         marginBottom: "15px",
@@ -382,11 +391,12 @@ function Category() {
                     >
                       <span aria-hidden="true">×</span>
                     </button>
-                    <h4 className="modal-title">Edit Form</h4>
+                    <h4 className="modal-title">Edit Category</h4>
                   </div>
-                  <div className="modal-body" style={{ height: "286px" }}>
+                  <div className="modal-body" style={{ height: "321px" }}>
                     <form onSubmit={editCategory.handleSubmit}>
                       <div className="form-group has-feedback">
+                        <label for="exampleInputEmail1">Title</label>
                         <input
                           type="text"
                           className="form-control"
@@ -406,6 +416,7 @@ function Category() {
                         <span className="glyphicon glyphicon-user form-control-feedback" />
                       </div>
                       <div className="form-group has-feedback">
+                        <label for="exampleInputEmail1">Image</label>
                         <input
                           type="file"
                           className="form-control"
@@ -429,6 +440,7 @@ function Category() {
                         ) : null}
                         <span className="glyphicon glyphicon-envelope form-control-feedback" />
                       </div>
+                      <label for="exampleInputEmail1">Status</label>
                       <select
                         style={{
                           marginBottom: "15px",

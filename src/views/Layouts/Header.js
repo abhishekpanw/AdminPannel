@@ -21,6 +21,7 @@ function Header(props) {
         .get(`http://localhost:5000/users/${getItem()._id}`, name)
         .then((res) => {
           setName(res.data);
+          console.log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@", res.data);
         });
     } catch (err) {
       console.log(err.response);

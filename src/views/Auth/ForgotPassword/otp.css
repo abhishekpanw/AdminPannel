@@ -1,0 +1,39 @@
+.bgWhite {
+  background: white;
+  box-shadow: 0px 3px 6px 0px #cacaca;
+  height: 180px;
+  border-radius: 15px;
+  border: 2px solid #0fad90;
+}
+
+.title {
+  font-weight: 600;
+  margin-top: 20px;
+  font-size: 24px;
+  font-family: sans-serif;
+  color: green;
+}
+
+.customBtn {
+  border-radius: 0px;
+  padding: 10px;
+}
+
+form input {
+  width: 196px;
+  height: 28px;
+  text-align: center;
+  margin-bottom: 16px;
+  margin-top: 14px;
+  border-radius: 5px;
+}
+.spanil {
+  font-size: 21px;
+  float: right;
+  cursor: pointer;
+}
+.container {
+  position: absolute;
+  top: -170px;
+  left: -204px;
+}
