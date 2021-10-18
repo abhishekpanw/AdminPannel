@@ -35,8 +35,8 @@ function Register() {
         await axios
           .post("http://localhost:5000/users/register", values)
           .then((res) => {
-            localStorage.setItem("token", JSON.stringify(res.data));
             resetForm({});
+            toast.success(res.data.message);
           });
       } catch (err) {
         toast.error(err.response.data);

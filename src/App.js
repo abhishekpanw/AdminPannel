@@ -13,6 +13,7 @@ import SubCategory from "./views/pages/SubCategory";
 import Product from "./views/pages/Product";
 import Forgot from "./views/Auth/ForgotPassword/Forgot";
 import Password from "./views/Auth/ForgotPassword/Password";
+import VerifyEmail from "./views/Auth/Register/VerifyEmail";
 import axios from "axios";
 
 axios.defaults.headers.post["Content-Type"] =
@@ -47,6 +48,13 @@ function App() {
             restricted={false}
             component={Password}
             path="/resetPassword/:token"
+            exact
+          />
+
+          <PublicRoute
+            restricted={false}
+            component={VerifyEmail}
+            path="/emailverification/:token"
             exact
           />
 
