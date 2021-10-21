@@ -18,6 +18,7 @@ function Product() {
   const [sub, setSub] = useState([]);
   const [setid, setID] = useState([]);
   const [categoryIdd, setcategoryIdd] = useState([]);
+  const [item, setItem] = useState([]);
 
   const [activePage, setActivePage] = useState(1);
   const [itemsCountPerPage, setItemsCountPerPage] = useState({});
@@ -69,7 +70,9 @@ function Product() {
   useEffect(() => {
     try {
       axios
-        .get(`http://localhost:5000/getProduct?page=${activePage}`)
+        .get(
+          `http://localhost:5000/getProduct?page=${activePage}&search=${item}`
+        )
         .then((res) => {
           console.log(res.data);
           setdata(res.data.user);
@@ -79,7 +82,7 @@ function Product() {
     } catch (err) {
       console.log(err);
     }
-  }, [setdata, activePage]);
+  }, [setdata, activePage, item]);
 
   const handlePage = (page) => {
     setActivePage(page);
@@ -223,6 +226,13 @@ function Product() {
           </div>
 
           <div class="box-body">
+            <input
+              type="text"
+              placeholder="search"
+              onChange={(e) => {
+                setItem(e.target.value);
+              }}
+            />
             <table id="example1" class="table table-bordered table-striped">
               <thead>
                 <tr>

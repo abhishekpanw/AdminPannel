@@ -14,7 +14,7 @@ import "./button.css";
 function Category() {
   const [data, setdata] = useState([]);
   const [modaltype, setmodaltype] = useState();
-
+  const [item, setItem] = useState([]);
   const [activePage, setActivePage] = useState(1);
   const [itemsCountPerPage, setItemsCountPerPage] = useState({});
   const [totalItemsCount, setTotalItemsCount] = useState({});
@@ -37,7 +37,9 @@ function Category() {
   useEffect(() => {
     try {
       axios
-        .get(`http://localhost:5000/allcategory?page=${activePage}`)
+        .get(
+          `http://localhost:5000/allcategory?page=${activePage}&search=${item}`
+        )
         .then((res) => {
           setdata(res.data.user);
           setItemsCountPerPage(res.data.per_page);
@@ -46,7 +48,7 @@ function Category() {
     } catch (err) {
       console.log(err);
     }
-  }, [setdata, activePage]);
+  }, [setdata, activePage, item]);
 
   const handlePage = (page) => {
     setActivePage(page);
@@ -187,6 +189,13 @@ function Category() {
           </div>
 
           <div class="box-body">
+            <input
+              type="text"
+              placeholder="search"
+              onChange={(e) => {
+                setItem(e.target.value);
+              }}
+            />
             <table id="example1" class="table table-bordered table-striped">
               <thead>
                 <tr>

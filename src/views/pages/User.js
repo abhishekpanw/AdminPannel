@@ -17,6 +17,7 @@ const User = () => {
   });
 
   const [data, setdata] = useState([]);
+  const [item, setItem] = useState("");
   const [user, setuser] = useState({
     fullName: "",
     email: "",
@@ -43,32 +44,41 @@ const User = () => {
     setCurrentPage(selectedPage);
   }
   const offset = currentPage * PER_PAGE;
-  const currentPageData = data.slice(offset, offset + PER_PAGE).map((user) => {
-    return (
-      <tr>
-        <td>{user.fullName}</td>
-        <td>{user.email}</td>
-        <td>
-          <i
-            style={{
-              fontSize: "27px",
-              marginRight: "11px",
-              cursor: "pointer",
-            }}
-            class="fa fa-pencil-square-o"
-            aria-hidden="true"
-            onClick={() => onEdit(user._id)}
-          ></i>
-          <i
-            style={{ fontSize: "27px", cursor: "pointer" }}
-            class="fa fa-trash"
-            onClick={() => deleteAlert(user._id)}
-            aria-hidden="true"
-          ></i>
-        </td>
-      </tr>
-    );
-  });
+  const currentPageData = data
+    .slice(offset, offset + PER_PAGE)
+    .filter((val) => {
+      if (item == "") {
+        return val;
+      } else if (val.fullName.toLowerCase().includes(item.toLowerCase())) {
+        return val;
+      }
+    })
+    .map((user) => {
+      return (
+        <tr>
+          <td>{user.fullName}</td>
+          <td>{user.email}</td>
+          <td>
+            <i
+              style={{
+                fontSize: "27px",
+                marginRight: "11px",
+                cursor: "pointer",
+              }}
+              class="fa fa-pencil-square-o"
+              aria-hidden="true"
+              onClick={() => onEdit(user._id)}
+            ></i>
+            <i
+              style={{ fontSize: "27px", cursor: "pointer" }}
+              class="fa fa-trash"
+              onClick={() => deleteAlert(user._id)}
+              aria-hidden="true"
+            ></i>
+          </td>
+        </tr>
+      );
+    });
 
   const pageCount = Math.ceil(data.length / PER_PAGE);
 
@@ -208,6 +218,13 @@ const User = () => {
             ></i>
           </div>
           <div class="box-body">
+            <input
+              type="text"
+              placeholder="search"
+              onChange={(e) => {
+                setItem(e.target.value);
+              }}
+            />
             <table class="table table-bordered table-striped">
               <thead>
                 <tr>
