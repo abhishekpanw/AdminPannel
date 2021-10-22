@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import axios from "axios";
 import Header from "../Layouts/Header";
 import Sidebar from "../Layouts/Sidebar";
-
+import Chart from "./Chart";
 const Blank = () => {
   const [category, setCategory] = useState("");
   const [Product, setProduct] = useState("");
@@ -98,6 +98,7 @@ const Blank = () => {
             </div>
           </div>
         </div>
+        <Chart />
       </div>
     </div>
   );
